@@ -3,6 +3,7 @@ package com.BlogApplication.Blog.controllers;
 import com.BlogApplication.Blog.models.Post;
 import com.BlogApplication.Blog.models.Tags;
 import com.BlogApplication.Blog.payloads.PostDto;
+import com.BlogApplication.Blog.payloads.UserDto;
 import com.BlogApplication.Blog.repositories.PostRepo;
 import com.BlogApplication.Blog.services.PostService;
 import com.BlogApplication.Blog.services.TagService;
@@ -55,4 +56,21 @@ public class PostController {
 
         return "redirect:/posts";
     }
+
+    @GetMapping("/post/viewPost")
+    public String viewPostByID(@RequestParam("id") int id, Model model) {
+        PostDto postDtoById = postService.getPostById(id);
+        System.out.println("Post found: " + postDtoById);
+
+        if (postDtoById == null) {
+            System.out.println("Post not found");
+        }
+
+        model.addAttribute("post", postDtoById);
+        return "viewPostByID";
+    }
+
+    //editPostByID(){}
+
+    //deletePostByID
 }

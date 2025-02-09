@@ -73,8 +73,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public void save(PostDto postDto) {
         Post post = this.dtoToPost(postDto);
-
-        post.setCreatedAt(LocalDateTime.now());
+        post.setUpdatedAt(LocalDateTime.now());
         post.setPublishedAt(LocalDateTime.now());
         StringBuffer excerptString = new StringBuffer();
         String[] excerptContent = post.getContent().split(" ");
@@ -105,4 +104,15 @@ public class PostServiceImpl implements PostService {
         postRepo.save(post);
     }
 
+    @Override
+    public PostDto getPostById(int id) {
+        Post postByID = postRepo.findById(id).orElseThrow(() -> new RuntimeException("Post not found"));
+        PostDto postDtoByID = new PostDto();
+        postDtoByID.setAuthor(postByID.getAuthor());
+        postDtoByID.setContent(postByID.getContent());
+        postDtoByID.setUpdatedAt(postByID.getUpdatedAt());
+        postDtoByID.setTitle(postByID.getTitle());
+        postDtoByID.setId(postByID.getId());
+        return postDtoByID;
+    }
 }

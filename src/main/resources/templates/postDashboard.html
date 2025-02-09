@@ -34,12 +34,14 @@
 
     <div class="blog-container">
         <div class="blog-card" th:each="post : ${posts}">
-            <h2 th:text="${post.title}">Post Title</h2>
-            <p>
-                <span th:text="${post.author}">Author</span>,
-                <span th:text="${post.updatedAt}"></span>
-            </p>
-            <p th:text="${post.excerpt}">Post content excerpt...</p>
+            <a th:href="@{/post/viewPost(id=${post.id})}">
+                <h2 th:text="${post.title}">Post Title</h2>
+                <p>
+                    <span th:text="${post.author}">Author</span>,
+                    <span th:text="${post.updatedAt}"></span>
+                </p>
+                <p th:text="${post.excerpt}">Post content excerpt...</p>
+            </a>
         </div>
     </div>
 

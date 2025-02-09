@@ -12,4 +12,5 @@ public interface PostService {
 //
        List<Post> getAllPost();
        void save(PostDto postDto);
+       PostDto getPostById(int id);
 }
