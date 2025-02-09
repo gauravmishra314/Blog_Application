@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Blog Application</title>
+    <link rel="stylesheet" href="/CSS/dashboardStyle.css">
+</head>
+<body>
+<header>
+    <div class="header-container">
+        <h1>My Blog Application</h1>
+        <nav>
+            <input type="text" placeholder="Search" class="search-input">
+            <button class="login-button">Login</button>
+        </nav>
+    </div>
+</header>
+
+<main>
+    <div class="filter-sort-container">
+        <form action="/posts/createForm" method="get">
+            <button type="submit" class="create-post-button">Create Post</button>
+        </form>
+        <div class="filter-sort-controls">
+            <select class="filter-dropdown">
+                <option value="">Filter</option>
+            </select>
+            <select class="sort-dropdown">
+                <option value="">Sort</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="blog-container">
+        <div class="blog-card" th:each="post : ${posts}">
+            <h2 th:text="${post.title}">Post Title</h2>
+            <p>
+                <span th:text="${post.author}">Author</span>,
+                <span th:text="${post.updatedAt}"></span>
+            </p>
+            <p th:text="${post.excerpt}">Post content excerpt...</p>
+        </div>
+    </div>
+
+    <div class="pagination-controls">
+        <button class="pagination-button">&lt; Previous</button>
+        <button class="pagination-button">Next &gt;</button>
+    </div>
+</main>
+</body>
+</html>

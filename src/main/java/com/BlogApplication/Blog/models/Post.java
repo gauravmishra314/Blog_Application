@@ -3,6 +3,7 @@ package com.BlogApplication.Blog.models;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name="posts")
@@ -17,7 +18,7 @@ public class Post {
     @Column(name = "excerpt")
     private String excerpt;
 
-    @Column(name = "content", columnDefinition = "TEXT")
+    @Column(length = 10000, name = "content", columnDefinition = "TEXT")
     private String content;
 
     @Column(name = "author", nullable = false)
@@ -34,6 +35,17 @@ public class Post {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @ManyToMany
+    List<Tags> tagList;
+
+    public List<Tags> getTagList() {
+        return tagList;
+    }
+
+    public void setTagList(List<Tags> tagList) {
+        this.tagList = tagList;
+    }
 
     public int getId() {
         return id;

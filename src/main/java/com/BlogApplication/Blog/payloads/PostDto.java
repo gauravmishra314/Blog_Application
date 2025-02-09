@@ -12,6 +12,15 @@ public class PostDto {
     private boolean isPublished;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String tags;
+
+    public String getTags() {
+        return tags;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
+    }
 
     public String getTitle() {
         return title;
