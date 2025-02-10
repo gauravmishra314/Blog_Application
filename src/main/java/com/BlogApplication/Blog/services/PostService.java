@@ -14,4 +14,5 @@ public interface PostService {
        void save(PostDto postDto);
        PostDto getPostById(int id);
        void isDeleted(int id);
+       void updatePostByID(PostDto postDto, int id);
 }

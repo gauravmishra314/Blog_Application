@@ -81,7 +81,7 @@ public class PostServiceImpl implements PostService {
         post.setPublishedAt(LocalDateTime.now());
         StringBuffer excerptString = new StringBuffer();
         String[] excerptContent = post.getContent().split(" ");
-        for(int i = 0;i<15;i++){
+        for(int i = 0;i<15 && i<excerptContent.length;i++){
             excerptString.append(excerptContent[i]);
             excerptString.append(" ");
         }
@@ -108,6 +108,44 @@ public class PostServiceImpl implements PostService {
         postRepo.save(post);
     }
 
+    public void updatePostByID(PostDto postDto, int id){
+        Post post = this.dtoToPost(postDto);
+        post.setUpdatedAt(LocalDateTime.now());
+
+        Post postByID = postRepo.findById(id).orElseThrow(() -> new RuntimeException("Post not found"));
+        postByID.setUpdatedAt(post.getUpdatedAt());
+        postByID.setContent(post.getContent());
+        postByID.setTitle(post.getTitle());
+        postByID.setAuthor(post.getAuthor());
+        StringBuffer excerptString = new StringBuffer();
+        String[] excerptContent = post.getContent().split(" ");
+        for(int i = 0;i<15 && i<excerptContent.length;i++){
+            excerptString.append(excerptContent[i]);
+            excerptString.append(" ");
+        }
+        excerptString.append(".....");
+        post.setExcerpt(excerptString.toString());
+        postByID.setExcerpt(post.getExcerpt());
+
+        String tagsInput = postDto.getTags();
+        if (tagsInput != null && !tagsInput.isEmpty()) {
+            List<Tags> tagList = Arrays.stream(tagsInput.split(","))
+                    .map(tagName -> {
+                        Tags tag = new Tags();
+                        tag.setName(tagName.trim());
+                        tag.setCreated_at(LocalDateTime.now());
+                        tag.setUpdated_at(LocalDateTime.now());
+
+                        tagService.savePost(tag);
+                        return tag;
+                    })
+                    .collect(Collectors.toList());
+            post.setTagList(tagList);
+        }
+
+        postRepo.save(postByID);
+    }
+
     @Override
     public PostDto getPostById(int id) {
         Post postByID = postRepo.findById(id).orElseThrow(() -> new RuntimeException("Post not found"));
@@ -117,6 +155,13 @@ public class PostServiceImpl implements PostService {
         postDtoByID.setUpdatedAt(postByID.getUpdatedAt());
         postDtoByID.setTitle(postByID.getTitle());
         postDtoByID.setId(postByID.getId());
+
+        List<Tags> tagsList = postByID.getTagList();
+        StringBuilder constructTagList = new StringBuilder();
+        for(Tags tag : tagsList){
+            constructTagList.append(tag.getName()).append(",");
+        }
+        postDtoByID.setTags(constructTagList.toString());
         return postDtoByID;
     }
 

@@ -72,6 +72,22 @@ public class PostController {
     }
 
     //editPostByID(){}
+    @GetMapping("/posts/edit")
+    public String editPostByID(@RequestParam("id") int id, Model model){
+        System.out.println("Ia ma getting ID   : "+id);
+        PostDto postDto = postService.getPostById(id);
+        System.out.println("this is the object sadkjfkjsdfhajkn: " + postDto);
+        model.addAttribute("post", postDto);
+        return  "editByPostID";
+    }
+
+    //rePublishByID(){}
+    @PostMapping("/post/republish")
+    public String rePublishPostByID(@ModelAttribute("postDto") PostDto postDto){
+        System.out.println("IIIIIIIIIIIIIIIII : "+postDto);
+        postService.updatePostByID(postDto, postDto.getId());
+        return "redirect:/posts";
+    }
 
     //deletePostByID
     @GetMapping("/posts/delete")

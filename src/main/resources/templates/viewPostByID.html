@@ -7,7 +7,7 @@
 </head>
 <body>
 <div class="nav-container">
-    <a th:href="@{/posts/edit/{id}(id=${post.id})}" class="edit-button">Edit</a>
+    <a th:href="@{/posts/edit(id=${post.id})}" class="edit-button">Edit</a>
     <a th:href="@{/posts/delete(id=${post.id})}" class="delete-button">Delete Post</a>
 </div>
 
