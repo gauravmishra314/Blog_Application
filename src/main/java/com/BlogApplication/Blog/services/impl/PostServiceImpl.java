@@ -4,6 +4,7 @@ import com.BlogApplication.Blog.models.Post;
 import com.BlogApplication.Blog.models.Tags;
 import com.BlogApplication.Blog.payloads.PostDto;
 import com.BlogApplication.Blog.repositories.PostRepo;
+import com.BlogApplication.Blog.repositories.TagRepo;
 import com.BlogApplication.Blog.services.PostService;
 import com.BlogApplication.Blog.services.TagService;
 import org.modelmapper.ModelMapper;
@@ -19,6 +20,9 @@ import java.util.stream.Collectors;
 public class PostServiceImpl implements PostService {
     @Autowired
     private PostRepo postRepo;
+
+    @Autowired
+    private TagRepo tagRepo;
 
     @Autowired
     private TagService tagService;
@@ -114,5 +118,22 @@ public class PostServiceImpl implements PostService {
         postDtoByID.setTitle(postByID.getTitle());
         postDtoByID.setId(postByID.getId());
         return postDtoByID;
+    }
+
+    @Override
+    public void isDeleted(int id) {
+        if (this.postRepo.existsById(id)) {
+            Post post = postRepo.findById(id).orElseThrow(() -> new RuntimeException("Post not found"));
+            post.getTagList().size();
+
+            List<Tags> tags = post.getTagList();
+            this.postRepo.deleteById(id);
+
+            for(Tags tag : tags){
+                if(tag.getPostList().isEmpty()){
+                    tagRepo.delete(tag);
+                }
+            }
+        }
     }
 }

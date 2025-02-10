@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -73,4 +74,11 @@ public class PostController {
     //editPostByID(){}
 
     //deletePostByID
+    @GetMapping("/posts/delete")
+    public String deletePost(@RequestParam("id") int id, RedirectAttributes redirectAttributes){
+        System.out.println("deleted post id :          "+ id);
+        postService.isDeleted(id);
+        redirectAttributes.addFlashAttribute("message", "Post deleted successfully");
+        return  "redirect:/posts";
+    }
 }
