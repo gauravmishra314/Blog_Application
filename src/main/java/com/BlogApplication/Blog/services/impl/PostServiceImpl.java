@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -79,8 +80,8 @@ public class PostServiceImpl implements PostService {
     @Override
     public void save(PostDto postDto) {
         Post post = this.dtoToPost(postDto);
-        post.setTitle(post.getTitle().toLowerCase());
-        post.setAuthor(post.getAuthor().toLowerCase());
+        post.setTitle(post.getTitle());
+        post.setAuthor(post.getAuthor());
         post.setUpdatedAt(LocalDateTime.now());
         post.setPublishedAt(LocalDateTime.now());
         StringBuffer excerptString = new StringBuffer();
@@ -96,12 +97,19 @@ public class PostServiceImpl implements PostService {
         if (tagsInput != null && !tagsInput.isEmpty()) {
             List<Tags> tagList = Arrays.stream(tagsInput.split(","))
                     .map(tagName -> {
-                        Tags tag = new Tags();
-                        tag.setName(tagName.trim().toLowerCase());
-                        tag.setCreated_at(LocalDateTime.now());
-                        tag.setUpdated_at(LocalDateTime.now());
+                        Optional<Tags> isTagPresent = tagService.findByName(tagName.trim());
+                        Tags tag ;
+                        if(isTagPresent.isEmpty()){
+                            tag = new Tags();
+                            tag.setName(tagName.trim());
+                            tag.setCreated_at(LocalDateTime.now());
+                            tag.setUpdated_at(LocalDateTime.now());
 
-                        tagService.savePost(tag);
+                            tagService.savePost(tag);
+                        }
+                        else{
+                            tag = isTagPresent.get();
+                        }
                         return tag;
                     })
                     .collect(Collectors.toList());
@@ -143,12 +151,19 @@ public class PostServiceImpl implements PostService {
         if (tagsInput != null && !tagsInput.isEmpty()) {
             List<Tags> tagList = Arrays.stream(tagsInput.split(","))
                     .map(tagName -> {
-                        Tags tag = new Tags();
-                        tag.setName(tagName.trim());
-                        tag.setCreated_at(LocalDateTime.now());
-                        tag.setUpdated_at(LocalDateTime.now());
+                        Optional<Tags> isTagPresent = tagService.findByName(tagName.trim());
+                        Tags tag ;
+                        if(isTagPresent.isEmpty()){
+                            tag = new Tags();
+                            tag.setName(tagName.trim());
+                            tag.setCreated_at(LocalDateTime.now());
+                            tag.setUpdated_at(LocalDateTime.now());
 
-                        tagService.savePost(tag);
+                            tagService.savePost(tag);
+                        }
+                        else{
+                            tag = isTagPresent.get();
+                        }
                         return tag;
                     })
                     .collect(Collectors.toList());
@@ -198,4 +213,17 @@ public class PostServiceImpl implements PostService {
         }
     }
 
+    @Override
+    public List<Post> searchByAuthor(String query) {
+        List<Post> searchByAuthor = postRepo.searchByAuthor(query);
+        System.out.println(searchByAuthor);
+        return searchByAuthor;
+    }
+
+    @Override
+    public List<Post> searchByTitle(String query){
+        List<Post> searchByTitle = postRepo.searchByTitle(query);
+        System.out.println(searchByTitle);
+        return searchByTitle;
+    }
 }

@@ -11,8 +11,10 @@
     <div class="header-container">
         <h1>My Blog Application</h1>
         <nav>
-            <input type="text" placeholder="Search" class="search-input">
-            <button class="login-button">Login</button>
+            <form action="/posts/search" method="get">
+                <input type="text" name = "query" placeholder="Search by Author and Title.." class="search-input">
+                <button class="login-button">Login</button>
+            </form>
         </nav>
     </div>
 </header>

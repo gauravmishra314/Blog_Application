@@ -23,19 +23,11 @@ import java.util.stream.Collectors;
 
 @Controller
 public class PostController {
-
-
     @Autowired
     private PostService postService;
 
     @Autowired
     private PostRepo postRepo;
-
-    //@PostMapping("/newpost")
-//    public ResponseEntity<PostDto> createUser(@RequestBody PostDto postDto){
-//        PostDto createPostDto = this.postService.createPost(postDto);
-//        return new ResponseEntity<>(createPostDto, HttpStatus.CREATED);
-//    }
 
     @GetMapping("/posts")
     public String getAllPosts(Model model) {
@@ -120,4 +112,25 @@ public class PostController {
     }
 
     //searching
+    @GetMapping("/posts/search")
+    public String searchController(@RequestParam("query") String query, Model model){
+        if(query.isEmpty()){
+            return "/posts";
+        }
+        List<Post> searchResultByAuthor= postService.searchByAuthor(query);
+        System.out.println(searchResultByAuthor+"    "+searchResultByAuthor.size());
+        List<Post> searchResultByTitle = postService.searchByTitle(query);
+        System.out.println(searchResultByTitle+" "+searchResultByTitle.size());
+
+        if(!searchResultByAuthor.isEmpty()){
+            model.addAttribute("posts", searchResultByAuthor);
+        }
+        else if(!searchResultByTitle.isEmpty()){
+            model.addAttribute("posts", searchResultByTitle);
+        }
+        else if(searchResultByTitle.isEmpty() && searchResultByAuthor.isEmpty()){
+            return "redirect:/posts";
+        }
+        return "postDashboard";
+    }
 }

@@ -6,6 +6,8 @@ import com.BlogApplication.Blog.services.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public   class TagServiceImpl implements TagService {
     @Autowired
@@ -19,5 +21,11 @@ public   class TagServiceImpl implements TagService {
     @Override
     public void deleteTag(int id) {
         tagRepo.deleteById(id);
+    }
+
+    @Override
+    public Optional<Tags> findByName(String tagName) {
+        Optional<Tags> isTagPresent = tagRepo.findByName(tagName);
+        return isTagPresent;
     }
 }
