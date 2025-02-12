@@ -11,8 +11,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.HTML;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -77,6 +79,8 @@ public class PostServiceImpl implements PostService {
     @Override
     public void save(PostDto postDto) {
         Post post = this.dtoToPost(postDto);
+        post.setTitle(post.getTitle().toLowerCase());
+        post.setAuthor(post.getAuthor().toLowerCase());
         post.setUpdatedAt(LocalDateTime.now());
         post.setPublishedAt(LocalDateTime.now());
         StringBuffer excerptString = new StringBuffer();
@@ -93,7 +97,7 @@ public class PostServiceImpl implements PostService {
             List<Tags> tagList = Arrays.stream(tagsInput.split(","))
                     .map(tagName -> {
                         Tags tag = new Tags();
-                        tag.setName(tagName.trim());
+                        tag.setName(tagName.trim().toLowerCase());
                         tag.setCreated_at(LocalDateTime.now());
                         tag.setUpdated_at(LocalDateTime.now());
 
@@ -113,10 +117,12 @@ public class PostServiceImpl implements PostService {
         post.setUpdatedAt(LocalDateTime.now());
 
         Post postByID = postRepo.findById(id).orElseThrow(() -> new RuntimeException("Post not found"));
+        System.out.println("I am from updatePostByID method :   "+postByID.getId());
         postByID.setUpdatedAt(post.getUpdatedAt());
         postByID.setContent(post.getContent());
         postByID.setTitle(post.getTitle());
         postByID.setAuthor(post.getAuthor());
+
         StringBuffer excerptString = new StringBuffer();
         String[] excerptContent = post.getContent().split(" ");
         for(int i = 0;i<15 && i<excerptContent.length;i++){
@@ -126,6 +132,12 @@ public class PostServiceImpl implements PostService {
         excerptString.append(".....");
         post.setExcerpt(excerptString.toString());
         postByID.setExcerpt(post.getExcerpt());
+
+        List<Tags> tagsList = postByID.getTagList();
+//        HashSet<Tags> oldTag = new HashSet<>();
+//        for(Tags tag : tagsList){
+//            oldTag.add(tag);
+//        }
 
         String tagsInput = postDto.getTags();
         if (tagsInput != null && !tagsInput.isEmpty()) {
@@ -140,10 +152,14 @@ public class PostServiceImpl implements PostService {
                         return tag;
                     })
                     .collect(Collectors.toList());
+
+
             post.setTagList(tagList);
+            postByID.setTagList(tagList);
         }
 
         postRepo.save(postByID);
+
     }
 
     @Override
@@ -181,4 +197,5 @@ public class PostServiceImpl implements PostService {
             }
         }
     }
+
 }

@@ -26,9 +26,13 @@
             <select class="filter-dropdown">
                 <option value="">Filter</option>
             </select>
-            <select class="sort-dropdown">
-                <option value="">Sort</option>
-            </select>
+            <form action="/posts/sort" method="get">
+                <select name = "order" class="sort-dropdown" onchange="this.form.submit()">
+                    <option value="">Sort</option>
+                    <option value="decrease">Newer To Older</option>
+                    <option value="increase">Older To Newer</option>
+                </select>
+            </form>
         </div>
     </div>
 

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -85,6 +86,7 @@ public class PostController {
     @PostMapping("/post/republish")
     public String rePublishPostByID(@ModelAttribute("postDto") PostDto postDto){
         System.out.println("IIIIIIIIIIIIIIIII : "+postDto);
+        System.out.println("postDto id     : "+postDto.getId());
         postService.updatePostByID(postDto, postDto.getId());
         return "redirect:/posts";
     }
@@ -97,4 +99,25 @@ public class PostController {
         redirectAttributes.addFlashAttribute("message", "Post deleted successfully");
         return  "redirect:/posts";
     }
+
+    //sorting post
+    @GetMapping("/posts/sort")
+    public String sortingOrder(@RequestParam String order,Model model){
+        System.out.println("Is i m getting order  :   "+order);
+        List<Post> sortedPost = new ArrayList<>();
+        if(order.equals("")){
+            sortedPost = postService.getAllPost();
+        }
+        else if(order.equals("decrease")){
+            sortedPost = postRepo.findAllByOrderByUpdatedAtDesc();
+        }
+        else if(order.equals("increase")){
+            sortedPost = postRepo.findAllByOrderByUpdatedAtAsc();
+        }
+
+        model.addAttribute("posts", sortedPost);
+        return "postDashboard";
+    }
+
+    //searching
 }

@@ -7,12 +7,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class TagServiceImpl implements TagService {
+public   class TagServiceImpl implements TagService {
     @Autowired
     private TagRepo tagRepo;
 
     @Override
     public void savePost(Tags tag){
         tagRepo.save(tag);
+    }
+
+    @Override
+    public void deleteTag(int id) {
+        tagRepo.deleteById(id);
     }
 }

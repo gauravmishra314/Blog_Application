@@ -21,7 +21,7 @@ public class Tags {
     @Column(name="updated_at")
     private LocalDateTime updated_at;
 
-    @ManyToMany(mappedBy = "tagList", cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "tagList", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     List<Post> postList;
 
     public List<Post> getPostList() {
