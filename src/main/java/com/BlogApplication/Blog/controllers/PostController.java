@@ -29,6 +29,9 @@ public class PostController {
     @Autowired
     private PostRepo postRepo;
 
+    @Autowired
+    private TagService tagService;
+
     @GetMapping("/posts")
     public String getAllPosts(Model model) {
         List<Post> posts = postService.getAllPost();
@@ -121,14 +124,24 @@ public class PostController {
         System.out.println(searchResultByAuthor+"    "+searchResultByAuthor.size());
         List<Post> searchResultByTitle = postService.searchByTitle(query);
         System.out.println(searchResultByTitle+" "+searchResultByTitle.size());
+        List<Post> searchResultByContent = postService.searchByContent(query);
+        System.out.println(searchResultByContent+"    "+searchResultByContent.size());
+        List<Post> searchResultByTag = tagService.searchByTag(query);
+        System.out.println(searchResultByTag+"   "+searchResultByTag.size());
 
         if(!searchResultByAuthor.isEmpty()){
             model.addAttribute("posts", searchResultByAuthor);
         }
-        else if(!searchResultByTitle.isEmpty()){
+        if(!searchResultByTitle.isEmpty()){
             model.addAttribute("posts", searchResultByTitle);
         }
-        else if(searchResultByTitle.isEmpty() && searchResultByAuthor.isEmpty()){
+        if(!searchResultByContent.isEmpty()){
+            model.addAttribute("posts", searchResultByContent);
+        }
+        if(!searchResultByTag.isEmpty()){
+            model.addAttribute("posts", searchResultByTag);
+        }
+        if(searchResultByTitle.isEmpty() && searchResultByAuthor.isEmpty() && searchResultByContent.isEmpty() && searchResultByTag.isEmpty()){
             return "redirect:/posts";
         }
         return "postDashboard";

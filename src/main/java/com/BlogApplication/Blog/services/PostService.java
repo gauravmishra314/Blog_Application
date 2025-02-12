@@ -12,12 +12,18 @@ public interface PostService {
 //    void deletePost(Integer id);
 
        List<Post> getAllPost();
+
        void save(PostDto postDto);
+
        PostDto getPostById(int id);
+
        void isDeleted(int id);
+
        void updatePostByID(PostDto postDto, int id);
 
        List<Post> searchByAuthor(String query);
 
        List<Post> searchByTitle(String query);
+
+       List<Post> searchByContent(String query);
 }

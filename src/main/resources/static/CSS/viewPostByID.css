@@ -51,7 +51,28 @@
             line-height: 1.6;
             text-align: justify;
         }
+
         .blog-tags {
             margin-top: 20px;
             font-weight: bold;
+        }
+
+        .blog-tags ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .blog-tags li {
+            display: inline;
+            margin-right: 10px;
+            background-color: #f1f1f1;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .blog-tags li:hover {
+            background-color: #ddd;
+            cursor: pointer;
         }

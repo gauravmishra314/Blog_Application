@@ -12,7 +12,7 @@
         <h1>My Blog Application</h1>
         <nav>
             <form action="/posts/search" method="get">
-                <input type="text" name = "query" placeholder="Search by Author and Title.." class="search-input">
+                <input type="text" name="query" placeholder="Search by Author and Title..." class="search-input">
                 <button class="login-button">Login</button>
             </form>
         </nav>
@@ -29,7 +29,7 @@
                 <option value="">Filter</option>
             </select>
             <form action="/posts/sort" method="get">
-                <select name = "order" class="sort-dropdown" onchange="this.form.submit()">
+                <select name="order" class="sort-dropdown" onchange="this.form.submit()">
                     <option value="">Sort</option>
                     <option value="decrease">Newer To Older</option>
                     <option value="increase">Older To Newer</option>
@@ -46,6 +46,9 @@
                     <span th:text="${post.author}">Author</span>,
                     <span th:text="${post.updatedAt}"></span>
                 </p>
+                <div class="tags-container">
+                    <span class="tag" th:each="tag : ${post.tagList}" th:text="${tag.name}">Tag</span>
+                </div>
                 <p th:text="${post.excerpt}">Post content excerpt...</p>
             </a>
         </div>

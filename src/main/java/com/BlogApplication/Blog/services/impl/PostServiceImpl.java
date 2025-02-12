@@ -226,4 +226,11 @@ public class PostServiceImpl implements PostService {
         System.out.println(searchByTitle);
         return searchByTitle;
     }
+
+    @Override
+    public List<Post> searchByContent(String query) {
+        List<Post> searchByContent = postRepo.searchByContent(query);
+        System.out.println(searchByContent);
+        return searchByContent;
+    }
 }

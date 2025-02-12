@@ -17,7 +17,12 @@
         Written by <span th:text="${post.author != null ? post.author : 'Unknown'}">Author Name</span> on
         <span th:text="${post.updatedAt != null ? post.updatedAt : 'Date not available'}">Date</span>
     </p>
-
+    <div class="blog-tags">
+        <p><strong>Tags:</strong></p>
+        <ul>
+            <li th:each="tag : ${post.tags}" th:text="${tag}">Tag Name</li>
+        </ul>
+    </div>
     <div class="blog-content" th:text="${post.content != null ? post.content : 'No content available.'}">
         Blog content goes here...
     </div>

@@ -1,11 +1,13 @@
 package com.BlogApplication.Blog.services.impl;
 
+import com.BlogApplication.Blog.models.Post;
 import com.BlogApplication.Blog.models.Tags;
 import com.BlogApplication.Blog.repositories.TagRepo;
 import com.BlogApplication.Blog.services.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -28,4 +30,12 @@ public   class TagServiceImpl implements TagService {
         Optional<Tags> isTagPresent = tagRepo.findByName(tagName);
         return isTagPresent;
     }
+
+    @Override
+    public List<Post> searchByTag(String query) {
+        Tags tag = tagRepo.searchByTag(query);
+        List<Post> allPostByTag = tag.getPostList();
+        return allPostByTag;
+    }
+
 }

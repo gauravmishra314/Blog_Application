@@ -18,4 +18,7 @@ public interface PostRepo extends JpaRepository<Post,Integer> {
 
     @Query("SELECT p FROM Post p WHERE LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%'))")
     List<Post> searchByTitle(@Param("query") String query);
+
+    @Query("SELECT p FROM Post p WHERE LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))")
+    List<Post> searchByContent(@Param("query") String query);
 }
