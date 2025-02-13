@@ -8,6 +8,9 @@ import com.BlogApplication.Blog.repositories.PostRepo;
 import com.BlogApplication.Blog.services.PostService;
 import com.BlogApplication.Blog.services.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -32,11 +35,42 @@ public class PostController {
     @Autowired
     private TagService tagService;
 
+//    @GetMapping("/posts")
+//    public String getAllPosts(@RequestParam(defaultValue = "0") int page,
+//                              @RequestParam(defaultValue = "10") int size, Model model) {
+//        List<Post> posts = postService.getAllPost();
+//
+//        List<String> allUniqueAuthors = postService.getAllUniqueAuthor();
+//        model.addAttribute("authors",allUniqueAuthors);
+//
+//        List<String> allUniqueTags = tagService.getAllUniqueTags();
+//        model.addAttribute("tags", allUniqueTags);
+//        System.out.println("alll taggggggggggggggggggggggggs :  "+allUniqueTags);
+//        System.out.println(posts);
+//        model.addAttribute("posts", posts);
+//        return "postDashboard";
+//    }
+
     @GetMapping("/posts")
-    public String getAllPosts(Model model) {
-        List<Post> posts = postService.getAllPost();
-        System.out.println(posts);
-        model.addAttribute("posts", posts);
+    public String getAllPosts(@RequestParam(defaultValue = "0") int page,
+                              @RequestParam(defaultValue = "10") int size, Model model) {
+        Page<Post> postPage = postService.getPaginatedPosts(page, size);
+
+        model.addAttribute("posts", postPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", postPage.getTotalPages());
+        model.addAttribute("totalItems", postPage.getTotalElements());
+        model.addAttribute("pageSize", size);
+
+        List<String> allUniqueAuthors = postService.getAllUniqueAuthor();
+        model.addAttribute("authors", allUniqueAuthors);
+
+        List<String> allUniqueTags = tagService.getAllUniqueTags();
+        model.addAttribute("tags", allUniqueTags);
+
+        System.out.println("All Unique Tags: " + allUniqueTags);
+        System.out.println("Posts: " + postPage.getContent());
+
         return "postDashboard";
     }
 
@@ -97,8 +131,17 @@ public class PostController {
 
     //sorting post
     @GetMapping("/posts/sort")
-    public String sortingOrder(@RequestParam String order,Model model){
+    public String sortingOrder(@RequestParam(defaultValue = "0") int page,
+                               @RequestParam(defaultValue = "10") int size, @RequestParam String order,Model model){
         System.out.println("Is i m getting order  :   "+order);
+        Page<Post> postPage = postService.getPaginatedPosts(page, size);
+
+        //model.addAttribute("posts", postPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", postPage.getTotalPages());
+        model.addAttribute("totalItems", postPage.getTotalElements());
+        model.addAttribute("pageSize", size);
+
         List<Post> sortedPost = new ArrayList<>();
         if(order.equals("")){
             sortedPost = postService.getAllPost();
@@ -116,7 +159,8 @@ public class PostController {
 
     //searching
     @GetMapping("/posts/search")
-    public String searchController(@RequestParam("query") String query, Model model){
+    public String searchController(@RequestParam(defaultValue = "0") int page,
+                                   @RequestParam(defaultValue = "10") int size, @RequestParam("query") String query, Model model){
         if(query.isEmpty()){
             return "/posts";
         }
@@ -129,6 +173,13 @@ public class PostController {
         List<Post> searchResultByTag = tagService.searchByTag(query);
         System.out.println(searchResultByTag+"   "+searchResultByTag.size());
 
+        Page<Post> postPage = postService.getPaginatedPosts(page, size);
+
+        //model.addAttribute("posts", postPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", postPage.getTotalPages());
+        model.addAttribute("totalItems", postPage.getTotalElements());
+        model.addAttribute("pageSize", size);
         if(!searchResultByAuthor.isEmpty()){
             model.addAttribute("posts", searchResultByAuthor);
         }
@@ -141,9 +192,68 @@ public class PostController {
         if(!searchResultByTag.isEmpty()){
             model.addAttribute("posts", searchResultByTag);
         }
-        if(searchResultByTitle.isEmpty() && searchResultByAuthor.isEmpty() && searchResultByContent.isEmpty() && searchResultByTag.isEmpty()){
+        if(searchResultByTitle.isEmpty() && searchResultByAuthor.isEmpty() && searchResultByContent.isEmpty() && searchResultByTag.isEmpty() && searchResultByTag.isEmpty()){
             return "redirect:/posts";
         }
+        return "postDashboard";
+    }
+
+    List<Post> filteredPostByAuthor = new ArrayList<>();
+    List<Post> filteredPostByTag = new ArrayList<>();
+    //filtering
+    @GetMapping("/posts/filter-author")
+    public String filteredPostAuthor(@RequestParam(defaultValue = "0") int page,
+                                     @RequestParam(defaultValue = "10") int size, @RequestParam String author, Model model){
+//        if(filteredPostByTag.isEmpty()){
+            filteredPostByAuthor = postService.searchByAuthor(author);
+//        }
+//        else{
+//            filteredPostByAuthor = postService.searchByAuthorInFilteredPostByTag(filteredPostByTag, author);
+//        }
+        System.out.println("authooooooorrrrr    post    : "+filteredPostByAuthor);
+
+        Page<Post> postPage = postService.getPaginatedPosts(page, size);
+
+        //model.addAttribute("posts", postPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", postPage.getTotalPages());
+        model.addAttribute("totalItems", postPage.getTotalElements());
+        model.addAttribute("pageSize", size);
+
+        model.addAttribute("posts", filteredPostByAuthor);
+        List<String> allUniqueAuthors = postService.getAllUniqueAuthor();
+        model.addAttribute("authors",allUniqueAuthors);
+
+        List<String> allUniqueTags = tagService.getAllUniqueTags();
+        model.addAttribute("tags", allUniqueTags);
+        return "postDashboard";
+    }
+
+    @GetMapping("/posts/filter-tag")
+    public String filteredPostTag(@RequestParam(defaultValue = "0") int page,
+                                  @RequestParam(defaultValue = "10") int size, @RequestParam String tag, Model model){
+//        if(filteredPostByAuthor.isEmpty()){
+            filteredPostByTag = tagService.searchByTag(tag);
+//        }
+//        else{
+//            filteredPostByTag = tagService.searchTagInAuthorFilteredList(filteredPostByAuthor,tag);
+//        }
+        Page<Post> postPage = postService.getPaginatedPosts(page, size);
+
+        //model.addAttribute("posts", postPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", postPage.getTotalPages());
+        model.addAttribute("totalItems", postPage.getTotalElements());
+        model.addAttribute("pageSize", size);
+
+        System.out.println("fillllltered     tagsss : "+filteredPostByTag);
+        model.addAttribute("posts", filteredPostByTag);
+
+        List<String> allUniqueAuthors = postService.getAllUniqueAuthor();
+        model.addAttribute("authors",allUniqueAuthors);
+
+        List<String> allUniqueTags = tagService.getAllUniqueTags();
+        model.addAttribute("tags", allUniqueTags);
         return "postDashboard";
     }
 }

@@ -9,14 +9,14 @@ import com.BlogApplication.Blog.services.PostService;
 import com.BlogApplication.Blog.services.TagService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.swing.text.html.HTML;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -232,5 +232,33 @@ public class PostServiceImpl implements PostService {
         List<Post> searchByContent = postRepo.searchByContent(query);
         System.out.println(searchByContent);
         return searchByContent;
+    }
+
+    @Override
+    public List<String> getAllUniqueAuthor() {
+        List<String> allPost = this.postRepo.distinctAuthor();
+        return allPost;
+    }
+
+    @Override
+    public List<Post> getAllPostFilteredByAuthor(String author) {
+        List<Post> allFilteredPostByAuthor = postRepo.searchByAuthor(author);
+        return allFilteredPostByAuthor;
+    }
+
+    @Override
+    public List<Post> searchByAuthorInFilteredPostByTag(List<Post> filteredPostByTag, String author) {
+        List<Post> filteredTagByAuthor = new ArrayList<>();
+        for(Post filteredByAuthor : filteredPostByTag){
+            if(filteredByAuthor.getAuthor().equals(author)){
+                filteredTagByAuthor.add(filteredByAuthor);
+            }
+        }
+        return filteredTagByAuthor;
+    }
+
+    public Page<Post> getPaginatedPosts(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return postRepo.findAll(pageable);
     }
 }

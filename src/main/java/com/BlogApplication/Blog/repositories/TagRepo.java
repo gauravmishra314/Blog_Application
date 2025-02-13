@@ -16,4 +16,7 @@ public interface TagRepo extends JpaRepository<Tags, Integer> {
 
     @Query("SELECT t FROM Tags t WHERE LOWER(t.name) LIKE LOWER(CONCAT('%', :query, '%'))")
     Tags searchByTag(@Param("query") String query);
+
+    @Query("SELECT DISTINCT UPPER(t.name) FROM Tags t")
+    List<String> distinctTag();
 }

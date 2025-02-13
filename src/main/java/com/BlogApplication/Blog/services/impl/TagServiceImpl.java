@@ -7,6 +7,7 @@ import com.BlogApplication.Blog.services.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,9 +34,26 @@ public   class TagServiceImpl implements TagService {
 
     @Override
     public List<Post> searchByTag(String query) {
-        Tags tag = tagRepo.searchByTag(query);
-        List<Post> allPostByTag = tag.getPostList();
-        return allPostByTag;
+        Optional<Tags> optionalTag = Optional.ofNullable(tagRepo.searchByTag(query));
+
+        if (optionalTag.isPresent()) {
+            Tags tag = optionalTag.get();
+
+            // Check if postList is null before accessing it
+            if (tag.getPostList() != null) {
+                return tag.getPostList();
+            } else {
+               return new ArrayList<>();
+            }
+        } else {
+            return new ArrayList<>();
+        }
     }
 
+
+    @Override
+    public List<String> getAllUniqueTags() {
+        List<String> allUniqueTags = this.tagRepo.distinctTag();
+        return allUniqueTags;
+    }
 }

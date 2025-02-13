@@ -25,9 +25,25 @@
             <button type="submit" class="create-post-button">Create Post</button>
         </form>
         <div class="filter-sort-controls">
-            <select class="filter-dropdown">
-                <option value="">Filter</option>
-            </select>
+            <div class="filter-sort-controls">
+                <form action="/posts/filter-author" method="get" class="filter-form">
+                    <select name="author" class="filter-dropdown" onchange="this.form.submit()">
+                        <option value="">Filter by Author</option>
+                        <option th:each="author : ${authors}"
+                                th:value="${author}"
+                                th:text="${author}">Author</option>
+                    </select>
+                </form>
+
+                <form action="/posts/filter-tag" method="get" class="filter-form">
+                    <select name="tag" class="filter-dropdown" onchange="this.form.submit()">
+                        <option value="">Filter by Tag</option>
+                        <option th:each="tag : ${tags}"
+                                th:value="${tag}"
+                                th:text="${tag}">Tag</option>
+                    </select>
+                </form>
+            </div>
             <form action="/posts/sort" method="get">
                 <select name="order" class="sort-dropdown" onchange="this.form.submit()">
                     <option value="">Sort</option>
@@ -55,8 +71,19 @@
     </div>
 
     <div class="pagination-controls">
-        <button class="pagination-button">&lt; Previous</button>
-        <button class="pagination-button">Next &gt;</button>
+        <button class="pagination-button"
+                th:if="${currentPage > 0}"
+                th:onclick="'window.location.href=\'/posts?page=' + (${currentPage} - 1) + '&size=' + ${pageSize} + '\''">
+            &lt; Previous
+        </button>
+
+        <span th:text="'Page ' + (${currentPage} + 1) + ' of ' + ${totalPages}">Page 1 of 10</span>
+
+        <button class="pagination-button"
+                th:if="${currentPage + 1 < totalPages}"
+                th:onclick="'window.location.href=\'/posts?page=' + (${currentPage} + 1) + '&size=' + ${pageSize} + '\''">
+            Next &gt;
+        </button>
     </div>
 </main>
 </body>

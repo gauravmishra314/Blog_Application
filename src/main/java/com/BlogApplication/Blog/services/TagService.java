@@ -16,4 +16,8 @@ public interface TagService {
     Optional<Tags> findByName(String tagName);
 
     List<Post> searchByTag(String query);
+
+    List<String> getAllUniqueTags();
+
+
 }
