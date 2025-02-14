@@ -20,4 +20,5 @@ public interface TagService {
     List<String> getAllUniqueTags();
 
 
+    List<Post> searchByTagInFilteredPostByAuthor(List<Post> filteredPostByAuthor, String tag);
 }

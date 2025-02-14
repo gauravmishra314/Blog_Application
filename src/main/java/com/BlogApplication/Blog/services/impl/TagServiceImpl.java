@@ -56,4 +56,20 @@ public   class TagServiceImpl implements TagService {
         List<String> allUniqueTags = this.tagRepo.distinctTag();
         return allUniqueTags;
     }
+
+    @Override
+    public List<Post> searchByTagInFilteredPostByAuthor(List<Post> filteredPostByAuthor, String tag) {
+        List<Post> filterdByTagOnAuthorList = new ArrayList<>();
+        tag = tag.toLowerCase();
+        for(Post post : filteredPostByAuthor){
+            List<Tags> tagList = post.getTagList();
+            for(Tags tagg : tagList){
+                if(tagg.getName().toLowerCase().equals(tag)){
+                    filterdByTagOnAuthorList.add(post);
+                    break;
+                }
+            }
+        }
+        return filterdByTagOnAuthorList;
+    }
 }

@@ -35,5 +35,4 @@ public interface PostService {
        List<Post> searchByAuthorInFilteredPostByTag(List<Post> filteredPostByTag, String author);
 
        Page<Post> getPaginatedPosts(int page, int size);
-
 }
