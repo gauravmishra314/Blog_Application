@@ -18,32 +18,32 @@
         </nav>
     </div>
 </header>
-
 <main>
     <div class="filter-sort-container">
         <form action="/posts/createForm" method="get">
             <button type="submit" class="create-post-button">Create Post</button>
         </form>
         <div class="filter-sort-controls">
-            <div class="filter-sort-controls">
-                <form action="/posts/filter-author" method="get" class="filter-form">
-                    <select name="author" class="filter-dropdown" onchange="this.form.submit()">
-                        <option value="">Filter by Author</option>
-                        <option th:each="author : ${authors}"
-                                th:value="${author}"
-                                th:text="${author}">Author</option>
-                    </select>
-                </form>
+            <!-- Author Filter with Multiple Selection -->
+            <form action="/posts/filter-author" method="get" class="filter-form" onsubmit="return submitMultiSelect(this, 'author[]')">
+                <select name="author[]" class="filter-dropdown" multiple>
+                    <option value="">Filter by Author</option>
+                    <option th:each="author : ${authors}"
+                            th:value="${author}"
+                            th:text="${author}">Author</option>
+                </select>
+                <button type="submit" class="filter-button">Apply Author Filters</button>
+            </form>
 
-                <form action="/posts/filter-tag" method="get" class="filter-form">
-                    <select name="tag" class="filter-dropdown" onchange="this.form.submit()">
-                        <option value="">Filter by Tag</option>
-                        <option th:each="tag : ${tags}"
-                                th:value="${tag}"
-                                th:text="${tag}">Tag</option>
-                    </select>
-                </form>
-            </div>
+            <form action="/posts/filter-tag" method="get" class="filter-form" onsubmit="return submitMultiSelect(this, 'tag[]')">
+                <select name="tag[]" class="filter-dropdown" multiple>
+                    <option value="">Filter by Tag</option>
+                    <option th:each="tag : ${tags}"
+                            th:value="${tag}"
+                            th:text="${tag}">Tag</option>
+                </select>
+                <button type="submit" class="filter-button">Apply Tag Filters</button>
+            </form>
             <form action="/posts/sort" method="get">
                 <select name="order" class="sort-dropdown" onchange="this.form.submit()">
                     <option value="">Sort</option>
@@ -53,7 +53,6 @@
             </form>
         </div>
     </div>
-
     <div class="blog-container">
         <div class="blog-card" th:each="post : ${posts}">
             <a th:href="@{/post/viewPost(id=${post.id})}">
@@ -69,16 +68,13 @@
             </a>
         </div>
     </div>
-
     <div class="pagination-controls">
         <button class="pagination-button"
                 th:if="${currentPage > 0}"
                 th:onclick="'window.location.href=\'/posts?page=' + (${currentPage} - 1) + '&size=' + ${pageSize} + '\''">
             &lt; Previous
         </button>
-
         <span th:text="'Page ' + (${currentPage} + 1) + ' of ' + ${totalPages}">Page 1 of 10</span>
-
         <button class="pagination-button"
                 th:if="${currentPage + 1 < totalPages}"
                 th:onclick="'window.location.href=\'/posts?page=' + (${currentPage} + 1) + '&size=' + ${pageSize} + '\''">
@@ -86,5 +82,7 @@
         </button>
     </div>
 </main>
+
+
 </body>
 </html>

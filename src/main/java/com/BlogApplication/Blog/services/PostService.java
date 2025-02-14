@@ -32,7 +32,9 @@ public interface PostService {
 
        List<Post> getAllPostFilteredByAuthor(String author);
 
-       List<Post> searchByAuthorInFilteredPostByTag(List<Post> filteredPostByTag, String author);
+       List<Post> searchByAuthorInFilteredPostByTag(List<Post> filteredPostByTag, String [] author);
 
        Page<Post> getPaginatedPosts(int page, int size);
+
+       List<Post> searchByMultipleAuthor(String[] query);
 }

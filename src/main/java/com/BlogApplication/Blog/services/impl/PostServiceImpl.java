@@ -9,6 +9,7 @@ import com.BlogApplication.Blog.services.PostService;
 import com.BlogApplication.Blog.services.TagService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -63,7 +64,7 @@ public class PostServiceImpl implements PostService {
 
         return postDto;
     }
-    
+
 //    @Override
 //    public PostDto createPost(PostDto postDto){
 //        Post post = this.dtoToPost((postDto));
@@ -84,30 +85,39 @@ public class PostServiceImpl implements PostService {
         post.setAuthor(post.getAuthor());
         post.setUpdatedAt(LocalDateTime.now());
         post.setPublishedAt(LocalDateTime.now());
+
+        // Excerpt Generation
         StringBuffer excerptString = new StringBuffer();
         String[] excerptContent = post.getContent().split(" ");
-        for(int i = 0;i<15 && i<excerptContent.length;i++){
+        for (int i = 0; i < 15 && i < excerptContent.length; i++) {
             excerptString.append(excerptContent[i]);
             excerptString.append(" ");
         }
         excerptString.append(".....");
         post.setExcerpt(excerptString.toString());
 
+        // Tags Handling
         String tagsInput = postDto.getTags();
         if (tagsInput != null && !tagsInput.isEmpty()) {
             List<Tags> tagList = Arrays.stream(tagsInput.split(","))
                     .map(tagName -> {
-                        Optional<Tags> isTagPresent = tagService.findByName(tagName.trim());
-                        Tags tag ;
-                        if(isTagPresent.isEmpty()){
+                        String upperTagName = tagName.trim().toUpperCase();
+                        Optional<Tags> isTagPresent = tagService.findByName(upperTagName);
+                        Tags tag;
+                        if (isTagPresent.isEmpty()) {
                             tag = new Tags();
-                            tag.setName(tagName.trim());
+                            tag.setName(upperTagName);
                             tag.setCreated_at(LocalDateTime.now());
                             tag.setUpdated_at(LocalDateTime.now());
-
-                            tagService.savePost(tag);
-                        }
-                        else{
+                            try {
+                                synchronized (this) {
+                                    tagService.savePost(tag);
+                                }
+                            } catch (DataIntegrityViolationException e) {
+                                tag = tagService.findByName(upperTagName)
+                                        .orElseThrow(() -> new RuntimeException("Tag creation failed for: " + upperTagName));
+                            }
+                        } else {
                             tag = isTagPresent.get();
                         }
                         return tag;
@@ -120,12 +130,11 @@ public class PostServiceImpl implements PostService {
         postRepo.save(post);
     }
 
-    public void updatePostByID(PostDto postDto, int id){
+    public void updatePostByID(PostDto postDto, int id) {
         Post post = this.dtoToPost(postDto);
         post.setUpdatedAt(LocalDateTime.now());
 
         Post postByID = postRepo.findById(id).orElseThrow(() -> new RuntimeException("Post not found"));
-        System.out.println("I am from updatePostByID method :   "+postByID.getId());
         postByID.setUpdatedAt(post.getUpdatedAt());
         postByID.setContent(post.getContent());
         postByID.setTitle(post.getTitle());
@@ -133,7 +142,7 @@ public class PostServiceImpl implements PostService {
 
         StringBuffer excerptString = new StringBuffer();
         String[] excerptContent = post.getContent().split(" ");
-        for(int i = 0;i<15 && i<excerptContent.length;i++){
+        for (int i = 0; i < 15 && i < excerptContent.length; i++) {
             excerptString.append(excerptContent[i]);
             excerptString.append(" ");
         }
@@ -141,41 +150,40 @@ public class PostServiceImpl implements PostService {
         post.setExcerpt(excerptString.toString());
         postByID.setExcerpt(post.getExcerpt());
 
-        List<Tags> tagsList = postByID.getTagList();
-//        HashSet<Tags> oldTag = new HashSet<>();
-//        for(Tags tag : tagsList){
-//            oldTag.add(tag);
-//        }
-
+        // Tags Handling
         String tagsInput = postDto.getTags();
         if (tagsInput != null && !tagsInput.isEmpty()) {
             List<Tags> tagList = Arrays.stream(tagsInput.split(","))
                     .map(tagName -> {
-                        Optional<Tags> isTagPresent = tagService.findByName(tagName.trim());
-                        Tags tag ;
-                        if(isTagPresent.isEmpty()){
+                        String upperTagName = tagName.trim().toUpperCase();
+                        Optional<Tags> isTagPresent = tagService.findByName(upperTagName);
+                        Tags tag;
+                        if (isTagPresent.isEmpty()) {
                             tag = new Tags();
-                            tag.setName(tagName.trim());
+                            tag.setName(upperTagName);
                             tag.setCreated_at(LocalDateTime.now());
                             tag.setUpdated_at(LocalDateTime.now());
-
-                            tagService.savePost(tag);
-                        }
-                        else{
+                            try {
+                                synchronized (this) {
+                                    tagService.savePost(tag);
+                                }
+                            } catch (DataIntegrityViolationException e) {
+                                tag = tagService.findByName(upperTagName)
+                                        .orElseThrow(() -> new RuntimeException("Tag creation failed for: " + upperTagName));
+                            }
+                        } else {
                             tag = isTagPresent.get();
                         }
                         return tag;
                     })
                     .collect(Collectors.toList());
 
-
-            post.setTagList(tagList);
             postByID.setTagList(tagList);
         }
 
         postRepo.save(postByID);
-
     }
+
 
     @Override
     public PostDto getPostById(int id) {
@@ -247,18 +255,36 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<Post> searchByAuthorInFilteredPostByTag(List<Post> filteredPostByTag, String author) {
+    public List<Post> searchByAuthorInFilteredPostByTag(List<Post> filteredPostByTag, String []author) {
         List<Post> filteredTagByAuthor = new ArrayList<>();
-        for(Post filteredByAuthor : filteredPostByTag){
-            if(filteredByAuthor.getAuthor().equals(author)){
-                filteredTagByAuthor.add(filteredByAuthor);
+        for(String authorName  : author){
+            authorName = authorName.toLowerCase();
+            for(Post filteredByTag : filteredPostByTag){
+
+                if(filteredByTag.getAuthor().toLowerCase().equals(authorName)){
+                    filteredTagByAuthor.add(filteredByTag);
+                    break;
+                }
             }
         }
+        System.out.print(filteredTagByAuthor);
         return filteredTagByAuthor;
     }
 
     public Page<Post> getPaginatedPosts(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return postRepo.findAll(pageable);
+    }
+
+    @Override
+    public List<Post> searchByMultipleAuthor(String[] query) {
+        List<Post> allFilteredPostByAuthor = new ArrayList<>();
+
+        for(String author : query){
+            List<Post> authorListByName = postRepo.searchByAuthor(author);
+            allFilteredPostByAuthor.addAll(authorListByName);
+        }
+
+        return allFilteredPostByAuthor;
     }
 }

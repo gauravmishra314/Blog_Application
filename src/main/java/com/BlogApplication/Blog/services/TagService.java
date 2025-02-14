@@ -17,8 +17,10 @@ public interface TagService {
 
     List<Post> searchByTag(String query);
 
+    List<Post> searchByMultipleTag(String[] query);
+
     List<String> getAllUniqueTags();
 
 
-    List<Post> searchByTagInFilteredPostByAuthor(List<Post> filteredPostByAuthor, String tag);
+    List<Post> searchByTagInFilteredPostByAuthor(List<Post> filteredPostByAuthor, String []tag);
 }

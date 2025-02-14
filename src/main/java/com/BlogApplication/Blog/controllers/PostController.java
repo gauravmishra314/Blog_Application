@@ -215,13 +215,14 @@ public class PostController {
     //filtering
     @GetMapping("/posts/filter-author")
     public String filteredPostAuthor(@RequestParam(defaultValue = "0") int page,
-                                     @RequestParam(defaultValue = "10") int size, @RequestParam String author, Model model){
-       if(filteredPostByTag.isEmpty()){
-            filteredPostByAuthor = postService.searchByAuthor(author);
-       }
-       else{
+                                     @RequestParam(defaultValue = "10") int size, @RequestParam String [] author, Model model){
+        if(filteredPostByTag.isEmpty()){
+            filteredPostByAuthor = postService.searchByMultipleAuthor(author);
+        }
+        else{
+            // send pagable object
             filteredPostByAuthor = postService.searchByAuthorInFilteredPostByTag(filteredPostByTag, author);
-       }
+        }
         System.out.println("authooooooorrrrr    post    : "+filteredPostByAuthor);
 
         Page<Post> postPage = postService.getPaginatedPosts(page, size);
@@ -243,26 +244,28 @@ public class PostController {
 
     @GetMapping("/posts/filter-tag")
     public String filteredPostTag(@RequestParam(defaultValue = "0") int page,
-                                  @RequestParam(defaultValue = "10") int size, @RequestParam String tag, Model model){
+                                  @RequestParam(defaultValue = "10") int size,
+                                  @RequestParam(defaultValue = "") String[] tag,
+                                  Model model){
         if(filteredPostByAuthor.isEmpty()){
-            filteredPostByTag = tagService.searchByTag(tag);
+            filteredPostByTag = tagService.searchByMultipleTag(tag);
         }
         else{
-            filteredPostByTag = tagService.searchByTagInFilteredPostByAuthor(filteredPostByAuthor,tag);
+            filteredPostByTag = tagService.searchByTagInFilteredPostByAuthor(filteredPostByAuthor, tag);
         }
+
         Page<Post> postPage = postService.getPaginatedPosts(page, size);
 
-        //model.addAttribute("posts", postPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", postPage.getTotalPages());
         model.addAttribute("totalItems", postPage.getTotalElements());
         model.addAttribute("pageSize", size);
 
-        System.out.println("fillllltered     tagsss : "+filteredPostByTag);
+        System.out.println("fillllltered     tagsss : " + filteredPostByTag);
         model.addAttribute("posts", filteredPostByTag);
 
         List<String> allUniqueAuthors = postService.getAllUniqueAuthor();
-        model.addAttribute("authors",allUniqueAuthors);
+        model.addAttribute("authors", allUniqueAuthors);
 
         List<String> allUniqueTags = tagService.getAllUniqueTags();
         model.addAttribute("tags", allUniqueTags);

@@ -43,13 +43,27 @@ public   class TagServiceImpl implements TagService {
             if (tag.getPostList() != null) {
                 return tag.getPostList();
             } else {
-               return new ArrayList<>();
+                return new ArrayList<>();
             }
         } else {
             return new ArrayList<>();
         }
     }
 
+    @Override
+    public List<Post> searchByMultipleTag(String[] query) {
+        List<Post> postByMultipleTag = new ArrayList<>();
+        for(String tag : query){
+            Tags checkForTag = tagRepo.searchByTag(tag);
+            if(checkForTag!=null){
+                List<Post> postByTag = tagRepo.searchByTag(tag).getPostList();
+                if(!postByTag.isEmpty())
+                    postByMultipleTag.addAll(postByTag);
+            }
+        }
+
+        return postByMultipleTag;
+    }
 
     @Override
     public List<String> getAllUniqueTags() {
@@ -58,15 +72,17 @@ public   class TagServiceImpl implements TagService {
     }
 
     @Override
-    public List<Post> searchByTagInFilteredPostByAuthor(List<Post> filteredPostByAuthor, String tag) {
+    public List<Post> searchByTagInFilteredPostByAuthor(List<Post> filteredPostByAuthor, String []tag) {
         List<Post> filterdByTagOnAuthorList = new ArrayList<>();
-        tag = tag.toLowerCase();
-        for(Post post : filteredPostByAuthor){
-            List<Tags> tagList = post.getTagList();
-            for(Tags tagg : tagList){
-                if(tagg.getName().toLowerCase().equals(tag)){
-                    filterdByTagOnAuthorList.add(post);
-                    break;
+        for(String findTag : tag){
+            findTag = findTag.toLowerCase();
+            for(Post post : filteredPostByAuthor){
+                List<Tags> tagList = post.getTagList();
+                for(Tags tagg : tagList){
+                    if(tagg.getName().toLowerCase().equals(findTag)){
+                        filterdByTagOnAuthorList.add(post);
+                        break;
+                    }
                 }
             }
         }
