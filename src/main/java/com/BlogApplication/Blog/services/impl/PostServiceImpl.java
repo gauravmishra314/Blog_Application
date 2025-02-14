@@ -1,5 +1,6 @@
 package com.BlogApplication.Blog.services.impl;
 
+import com.BlogApplication.Blog.models.Comment;
 import com.BlogApplication.Blog.models.Post;
 import com.BlogApplication.Blog.models.Tags;
 import com.BlogApplication.Blog.payloads.PostDto;
@@ -194,6 +195,7 @@ public class PostServiceImpl implements PostService {
         postDtoByID.setUpdatedAt(postByID.getUpdatedAt());
         postDtoByID.setTitle(postByID.getTitle());
         postDtoByID.setId(postByID.getId());
+        postDtoByID.setComments(postByID.getComments());
 
         List<Tags> tagsList = postByID.getTagList();
         StringBuilder constructTagList = new StringBuilder();
@@ -286,5 +288,15 @@ public class PostServiceImpl implements PostService {
         }
 
         return allFilteredPostByAuthor;
+    }
+
+    @Override
+    public List<Comment> getComment(int postId) {
+        Optional<Post> commentsPost = postRepo.findById(postId);
+        if(!commentsPost.isEmpty()){
+            Post comments = commentsPost.get();
+            return comments.getComments();
+        }
+        return new ArrayList<>();
     }
 }

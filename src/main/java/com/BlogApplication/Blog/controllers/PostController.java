@@ -1,12 +1,16 @@
 package com.BlogApplication.Blog.controllers;
 
+import com.BlogApplication.Blog.models.Comment;
 import com.BlogApplication.Blog.models.Post;
 import com.BlogApplication.Blog.models.Tags;
 import com.BlogApplication.Blog.payloads.PostDto;
 import com.BlogApplication.Blog.payloads.UserDto;
+import com.BlogApplication.Blog.repositories.CommentRepo;
 import com.BlogApplication.Blog.repositories.PostRepo;
+import com.BlogApplication.Blog.services.CommentService;
 import com.BlogApplication.Blog.services.PostService;
 import com.BlogApplication.Blog.services.TagService;
+import org.hibernate.annotations.Comments;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,10 +34,19 @@ public class PostController {
     private PostService postService;
 
     @Autowired
+    private CommentRepo commentRepo;
+
+    @Autowired
     private PostRepo postRepo;
 
     @Autowired
     private TagService tagService;
+
+    @Autowired
+    private CommentService commentService;
+
+    List<Post> filteredPostByAuthor = new ArrayList<>();
+    List<Post> filteredPostByTag = new ArrayList<>();
 
 //    @GetMapping("/posts")
 //    public String getAllPosts(@RequestParam(defaultValue = "0") int page,
@@ -55,6 +68,8 @@ public class PostController {
     public String getAllPosts(@RequestParam(defaultValue = "0") int page,
                               @RequestParam(defaultValue = "10") int size, Model model) {
         Page<Post> postPage = postService.getPaginatedPosts(page, size);
+        filteredPostByAuthor = new ArrayList<>();
+        filteredPostByTag = new ArrayList<>();
 
         model.addAttribute("posts", postPage.getContent());
         model.addAttribute("currentPage", page);
@@ -85,6 +100,8 @@ public class PostController {
         postDto.setCreatedAt(LocalDateTime.now());
         postService.save(postDto);
 
+        filteredPostByAuthor = new ArrayList<>();
+        filteredPostByTag = new ArrayList<>();
         return "redirect:/posts";
     }
 
@@ -114,6 +131,9 @@ public class PostController {
     //rePublishByID(){}
     @PostMapping("/post/republish")
     public String rePublishPostByID(@ModelAttribute("postDto") PostDto postDto){
+        filteredPostByAuthor = new ArrayList<>();
+        filteredPostByTag = new ArrayList<>();
+
         System.out.println("IIIIIIIIIIIIIIIII : "+postDto);
         System.out.println("postDto id     : "+postDto.getId());
         postService.updatePostByID(postDto, postDto.getId());
@@ -132,9 +152,12 @@ public class PostController {
     //sorting post
     @GetMapping("/posts/sort")
     public String sortingOrder(@RequestParam(defaultValue = "0") int page,
-                               @RequestParam(defaultValue = "10") int size, @RequestParam String order, Model model){
+                               @RequestParam(defaultValue = "10") int size, @RequestParam String order,Model model){
         System.out.println("Is i m getting order  :   "+order);
         Page<Post> postPage = postService.getPaginatedPosts(page, size);
+
+        filteredPostByAuthor = new ArrayList<>();
+        filteredPostByTag = new ArrayList<>();
 
         //model.addAttribute("posts", postPage.getContent());
         model.addAttribute("currentPage", page);
@@ -152,7 +175,6 @@ public class PostController {
         else if(order.equals("increase")){
             sortedPost = postRepo.findAllByOrderByUpdatedAtAsc();
         }
-
         List<String> allUniqueAuthors = postService.getAllUniqueAuthor();
         model.addAttribute("authors",allUniqueAuthors);
 
@@ -170,6 +192,9 @@ public class PostController {
         if(query.isEmpty()){
             return "/posts";
         }
+        filteredPostByAuthor = new ArrayList<>();
+        filteredPostByTag = new ArrayList<>();
+
         List<Post> searchResultByAuthor= postService.searchByAuthor(query);
         System.out.println(searchResultByAuthor+"    "+searchResultByAuthor.size());
         List<Post> searchResultByTitle = postService.searchByTitle(query);
@@ -180,6 +205,12 @@ public class PostController {
         System.out.println(searchResultByTag+"   "+searchResultByTag.size());
 
         Page<Post> postPage = postService.getPaginatedPosts(page, size);
+
+        List<String> allUniqueAuthors = postService.getAllUniqueAuthor();
+        model.addAttribute("authors", allUniqueAuthors);
+
+        List<String> allUniqueTags = tagService.getAllUniqueTags();
+        model.addAttribute("tags", allUniqueTags);
 
         //model.addAttribute("posts", postPage.getContent());
         model.addAttribute("currentPage", page);
@@ -201,17 +232,9 @@ public class PostController {
         if(searchResultByTitle.isEmpty() && searchResultByAuthor.isEmpty() && searchResultByContent.isEmpty() && searchResultByTag.isEmpty() && searchResultByTag.isEmpty()){
             return "redirect:/posts";
         }
-        List<String> allUniqueAuthors = postService.getAllUniqueAuthor();
-        model.addAttribute("authors",allUniqueAuthors);
-
-        List<String> allUniqueTags = tagService.getAllUniqueTags();
-        model.addAttribute("tags", allUniqueTags);
-
         return "postDashboard";
     }
 
-    List<Post> filteredPostByAuthor = new ArrayList<>();
-    List<Post> filteredPostByTag = new ArrayList<>();
     //filtering
     @GetMapping("/posts/filter-author")
     public String filteredPostAuthor(@RequestParam(defaultValue = "0") int page,
@@ -270,5 +293,54 @@ public class PostController {
         List<String> allUniqueTags = tagService.getAllUniqueTags();
         model.addAttribute("tags", allUniqueTags);
         return "postDashboard";
+    }
+
+    //    add comments on post by id
+    @PostMapping("/posts/{id}/comments/add")
+    public String addComment(@PathVariable("id") int postId,
+                             @RequestParam String content,
+                             @RequestParam String name, Model model) {
+        filteredPostByAuthor = new ArrayList<>();
+        filteredPostByTag = new ArrayList<>();
+
+        commentService.save(postId,content,name);
+        List<Comment> comments = postService.getComment(postId);
+        System.out.print("comments   list   : " + comments);
+        //model.addAttribute("comments", comments);
+        PostDto post = postService.getPostById(postId);
+        List<Comment> com = post.getComments();
+        System.out.println(com);
+        model.addAttribute("post", post);
+        return "viewPostByID";
+    }
+
+    @GetMapping("/posts/comments/delete/{id}")
+    public String deleteComment(@PathVariable("id") int commentId, Model model) {
+        System.out.println("Deleting comment with ID: " + commentId);
+        Comment com = commentRepo.findById(commentId);
+        filteredPostByAuthor = new ArrayList<>();
+        filteredPostByTag = new ArrayList<>();
+        // If the comment is null, handle it
+        if (com == null) {
+            System.out.println("Comment not found with ID: " + commentId);
+            // Optionally redirect to a different page or show an error
+            return "redirect:/posts"; // Adjust this based on your application's flow
+        }
+
+        // If the comment exists, retrieve its associated post
+        Post postCom = com.getPost();
+        if (postCom != null) {
+            PostDto postdto = postService.getPostById(postCom.getId());
+            System.out.println("Post ID: " + postCom.getId());
+
+            // Delete the comment
+            commentRepo.deleteById(commentId);
+            System.out.println("Deleted comment with ID: " + commentId);
+
+            // Add the post to the model to display on the page
+            model.addAttribute("post", postdto);
+        }
+
+        return "viewPostByID";
     }
 }

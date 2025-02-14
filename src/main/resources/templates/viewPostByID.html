@@ -28,5 +28,55 @@
     </div>
 </div>
 
+<!-- Add Comment Section -->
+<div class="comment-section">
+    <h3>Add a Comment</h3>
+    <form th:action="@{/posts/{id}/comments/add(id=${post.id})}" method="POST">
+        <input type="text" name="name" placeholder="Your Name" required>
+        <textarea name="content" placeholder="Write your comment here..." required></textarea>
+        <button type="submit">Add Comment</button>
+    </form>
+</div>
+
+Display Existing Comments
+<div class="comments-list">
+    <h3>Comments</h3>
+    <ul>
+        <li th:each="comment : ${post.comments}">
+            <div class="comment">
+                <p><strong th:text="${comment.name}">Comment Author</strong> said:</p>
+                <p th:text="${comment.content}">Comment Content</p>
+
+                <!-- Edit Comment Button -->
+                <a th:href="@{/posts/comments/edit(id=${comment.id})}" class="edit-comment-button">Edit</a>
+
+                <!-- Delete Comment Button -->
+                <a th:href="@{/posts/comments/delete/{id}(id=${comment.id})}"
+                   onclick="return confirm('Are you sure you want to delete this comment?');"
+                   class="delete-comment-button">Delete Comment</a>
+
+
+                <!--                &lt;!&ndash; Nested Comments (Replies) &ndash;&gt;-->
+                <!--                <div class="nested-comments">-->
+                <!--                    <ul>-->
+                <!--                        <li th:each="reply : ${comment.replies}">-->
+                <!--                            <div class="reply">-->
+                <!--                                <p><strong th:text="${reply.name}">Reply Author</strong> replied:</p>-->
+                <!--                                <p th:text="${reply.content}">Reply Content</p>-->
+                <!--                            </div>-->
+                <!--                        </li>-->
+                <!--                    </ul>-->
+
+                <!--                    &lt;!&ndash; Add Reply Form &ndash;&gt;-->
+                <!--                    <form th:action="@{/posts/comments/{commentId}/reply(id=${comment.id})}" method="POST">-->
+                <!--                        <textarea name="content" placeholder="Write your reply..." required></textarea>-->
+                <!--                        <button type="submit">Add Reply</button>-->
+                <!--                    </form>-->
+            </div>
+</div>
+</li>
+</ul>
+</div>
+
 </body>
 </html>

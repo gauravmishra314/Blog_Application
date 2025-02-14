@@ -1,6 +1,9 @@
 package com.BlogApplication.Blog.payloads;
 
+import com.BlogApplication.Blog.models.Comment;
+
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class PostDto {
     private int id;
@@ -13,6 +16,15 @@ public class PostDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String tags;
+    private List<Comment> comments;
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
+    }
 
     public String getTags() {
         return tags;

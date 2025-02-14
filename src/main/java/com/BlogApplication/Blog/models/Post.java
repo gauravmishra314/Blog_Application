@@ -39,6 +39,17 @@ public class Post {
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     List<Tags> tagList;
 
+    @OneToMany(mappedBy = "post", fetch = FetchType.EAGER)
+    private List<Comment> comments;
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
+    }
+
     public List<Tags> getTagList() {
         return tagList;
     }

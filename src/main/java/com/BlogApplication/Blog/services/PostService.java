@@ -1,5 +1,6 @@
 package com.BlogApplication.Blog.services;
 
+import com.BlogApplication.Blog.models.Comment;
 import com.BlogApplication.Blog.models.Post;
 import com.BlogApplication.Blog.payloads.PostDto;
 import com.BlogApplication.Blog.repositories.PostRepo;
@@ -37,4 +38,6 @@ public interface PostService {
        Page<Post> getPaginatedPosts(int page, int size);
 
        List<Post> searchByMultipleAuthor(String[] query);
+
+       List<Comment> getComment(int postId);
 }
