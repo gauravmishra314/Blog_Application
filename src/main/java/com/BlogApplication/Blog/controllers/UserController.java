@@ -5,26 +5,25 @@ import com.BlogApplication.Blog.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 
-@RestController
-@RequestMapping("/api/users")
+@Controller
 public class UserController {
     @Autowired
     private UserService userService;
 
-    //POST - create user
-    @PostMapping("/")
-    public ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto){
-        UserDto createUserDto = this.userService.createUser(userDto);
-        return new ResponseEntity<>(createUserDto, HttpStatus.CREATED);
+    @GetMapping("/registerUser")
+    public String registerPage(Model model){
+        model.addAttribute("userDto", new UserDto());
+        return "register";
     }
-    //PUT - update user
 
-    //DELETE - delete user
-
-    //GET - user get
+    @PostMapping("/registerUser")
+    public String createUser(@ModelAttribute UserDto userDto){
+        System.out.println("asdfkjhkasjdfl   "+userDto.getPassword());
+        userService.createUser(userDto);
+        return "redirect:/login";
+    }
 }
