@@ -26,6 +26,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -112,8 +113,9 @@ public class PostController {
 
         if (postDtoById == null) {
             System.out.println("Post not found");
+            return "redirect:/posts";
         }
-
+        model.addAttribute("comment", new Comment());
         model.addAttribute("post", postDtoById);
         return "viewPostByID";
     }
@@ -320,27 +322,55 @@ public class PostController {
         Comment com = commentRepo.findById(commentId);
         filteredPostByAuthor = new ArrayList<>();
         filteredPostByTag = new ArrayList<>();
-        // If the comment is null, handle it
         if (com == null) {
             System.out.println("Comment not found with ID: " + commentId);
-            // Optionally redirect to a different page or show an error
-            return "redirect:/posts"; // Adjust this based on your application's flow
+            return "redirect:/posts";
         }
 
-        // If the comment exists, retrieve its associated post
         Post postCom = com.getPost();
         if (postCom != null) {
             PostDto postdto = postService.getPostById(postCom.getId());
             System.out.println("Post ID: " + postCom.getId());
 
-            // Delete the comment
             commentRepo.deleteById(commentId);
             System.out.println("Deleted comment with ID: " + commentId);
-
-            // Add the post to the model to display on the page
             model.addAttribute("post", postdto);
         }
 
         return "viewPostByID";
     }
+
+    @PostMapping("/posts/comments/{commentId}/reply")
+    public String saveReply(@PathVariable("commentId") int commentId,
+                            @RequestParam("content") String content, Model model) {
+        System.out.println("comment idddddddddddd : "+commentId);
+        Comment parentComment = commentRepo.findById(commentId);
+
+        System.out.println("parentCommmmmmmmment :"+parentComment);
+
+        if (parentComment == null) {
+            System.out.println("Comment not found with ID: " + commentId);
+            return "redirect:/posts";
+        }
+
+        Post post = parentComment.getPost();
+        if (post != null) {
+            Comment reply = new Comment();
+            reply.setName("Anonymous");
+            reply.setContent(content);
+            reply.setPost(post);
+            reply.setParent(parentComment);
+            parentComment.getReplies().add(commentRepo.save(reply));
+            System.out.println("replyyyyyyyyyyyyyy saved  :"+ reply);
+            commentRepo.save(parentComment);
+
+            PostDto postDto = postService.getPostById(post.getId());
+            model.addAttribute("post", postDto);
+
+            return "viewPostByID";
+        } else {
+            return "redirect:/posts";
+        }
+    }
+
 }

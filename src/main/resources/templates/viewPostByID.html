@@ -56,26 +56,26 @@ Display Existing Comments
                    class="delete-comment-button">Delete Comment</a>
 
 
-                <!--                &lt;!&ndash; Nested Comments (Replies) &ndash;&gt;-->
-                <!--                <div class="nested-comments">-->
-                <!--                    <ul>-->
-                <!--                        <li th:each="reply : ${comment.replies}">-->
-                <!--                            <div class="reply">-->
-                <!--                                <p><strong th:text="${reply.name}">Reply Author</strong> replied:</p>-->
-                <!--                                <p th:text="${reply.content}">Reply Content</p>-->
-                <!--                            </div>-->
-                <!--                        </li>-->
-                <!--                    </ul>-->
+                <!-- Nested Comments (Replies) -->
+                <div class="nested-comments">
+                    <ul>
+                        <li th:each="reply : ${comment.replies}">
+                            <div class="reply">
+                                <p><strong th:text="${reply.name}">Reply Author</strong> replied:</p>
+                                <p th:text="${reply.content}">Reply Content</p>
+                            </div>
+                        </li>
+                    </ul>
 
-                <!--                    &lt;!&ndash; Add Reply Form &ndash;&gt;-->
-                <!--                    <form th:action="@{/posts/comments/{commentId}/reply(id=${comment.id})}" method="POST">-->
-                <!--                        <textarea name="content" placeholder="Write your reply..." required></textarea>-->
-                <!--                        <button type="submit">Add Reply</button>-->
-                <!--                    </form>-->
+                    <!-- Add Reply Form -->
+                    <form th:if="${comment != null}" th:action="@{'/posts/comments/' + ${comment.id} + '/reply'}" method="POST">
+                        <textarea name="content" placeholder="Write your reply..." required></textarea>
+                        <button type="submit">Add Reply</button>
+                    </form>
+                </div>
             </div>
-</div>
-</li>
-</ul>
+        </li>
+    </ul>
 </div>
 
 </body>
