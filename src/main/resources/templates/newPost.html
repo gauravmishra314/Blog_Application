@@ -98,7 +98,12 @@
 
         <div class="form-group">
             <label for="author">Author</label>
-            <input type="text" id="author" th:field="*{author}" readonly>
+            <input type="text" id="author" th:field="*{author}"
+                   th:attr="readonly=${role == 'ROLE_ADMIN' ? 'false' : 'true'}">
+
+
+
+            <!--                        <input type="text" id="author" th:field="*{author}" readonly>-->
         </div>
 
         <div class="form-group">

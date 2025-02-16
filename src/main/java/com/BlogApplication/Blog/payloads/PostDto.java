@@ -19,6 +19,15 @@ public class PostDto {
     private String tags;
     private List<Comment> comments;
     private User user;
+    private String role;
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
 
     public User getUser() {
         return user;

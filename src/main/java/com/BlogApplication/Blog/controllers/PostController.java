@@ -19,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -106,15 +107,19 @@ public class PostController {
 //    }
 
     @GetMapping("/posts/createForm")
-    public String showPostForm(Model model, Principal principal) {
+    public String showPostForm(Model model, Authentication authentication) {
         PostDto postDto = new PostDto();
-        Optional<User> userOptional = userRepo.findByEmail(principal.getName());
+        Optional<User> userOptional = userRepo.findByEmail(authentication.getName());
 
         if (userOptional.isEmpty()) {
             throw new UsernameNotFoundException("Could not found user !!");
         }
         String authorName = userOptional.get().getName();
+
+        System.out.println("Role asdjkfhkjasdfhf :"+userOptional.get().getRole());
         postDto.setAuthor(authorName);  // Set author as the logged-in username
+
+        model.addAttribute("role", userOptional.get().getRole());
         model.addAttribute("postDto", postDto);
         return "newPost";
     }
