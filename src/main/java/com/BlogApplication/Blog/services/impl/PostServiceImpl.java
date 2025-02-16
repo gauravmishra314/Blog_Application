@@ -210,6 +210,7 @@ public class PostServiceImpl implements PostService {
         postDtoByID.setTitle(postByID.getTitle());
         postDtoByID.setId(postByID.getId());
         postDtoByID.setComments(postByID.getComments());
+        postDtoByID.setUser(postByID.getUser());
 
         List<Tags> tagsList = postByID.getTagList();
         StringBuilder constructTagList = new StringBuilder();
