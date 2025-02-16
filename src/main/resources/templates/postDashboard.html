@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -225,25 +225,37 @@
     <div class="header-container">
         <h1>My Blog Application</h1>
         <nav>
-            <form action="/posts/search" method="get">
+            <form th:action="@{/posts/search}" th:method="get">
                 <input type="text" name="query" placeholder="Search by Author and Title..." class="search-input">
-                <button class="login-button">Login</button>
+
+                <div sec:authorize="isAnonymous()">
+                    <button class="login-button">Login</button>
+                </div>
+
             </form>
 
-            <form th:action="@{/logout}" method="post" class="logout-form">
-                <button type="submit" class="logout-button">Logout</button>
-            </form>
+            <div sec:authorize="isAuthenticated()">
+                <form th:action="@{/logout}" th:method="post" class="logout-form">
+                    <button th:type="submit" class="logout-button">Logout</button>
+                </form>
+            </div>
+
         </nav>
     </div>
 </header>
 <main>
     <div class="filter-sort-container">
-        <form action="/posts/createForm" method="get">
-            <button type="submit" class="create-post-button">Create Post</button>
-        </form>
+        <div sec:authorize="isAuthenticated()">
+            <form th:action="@{/posts/createForm}" th:method="get">
+                <button type="submit" class="create-post-button">Create Post</button>
+            </form>
+        </div>
+<!--        <form th:action="@{/posts/createForm}" th:method="get">-->
+<!--            <button type="submit" class="create-post-button">Create Post</button>-->
+<!--        </form>-->
         <div class="filter-sort-controls">
             <!-- Author Filter with Multiple Selection -->
-            <form action="/posts/filter-author" method="get" class="filter-form" onsubmit="return submitMultiSelect(this, 'author[]')">
+            <form th:action="@{/posts/filter-author}" th:method="get" class="filter-form" th:onsubmit="return submitMultiSelect(this, 'author[]')">
                 <select name="author[]" class="filter-dropdown" multiple>
                     <option value="">Filter by Author</option>
                     <option th:each="author : ${authors}"
@@ -253,8 +265,8 @@
                 <button type="submit" class="filter-button">Apply Author Filters</button>
             </form>
 
-            <form action="/posts/filter-tag" method="get" class="filter-form" onsubmit="return submitMultiSelect(this, 'tag[]')">
-                <select name="tag[]" class="filter-dropdown" multiple>
+            <form th:action="@{/posts/filter-tag}" th:method="get" class="filter-form" th:onsubmit="return submitMultiSelect(this, 'tag[]')">
+                <select th:name="tag[]" class="filter-dropdown" multiple>
                     <option value="">Filter by Tag</option>
                     <option th:each="tag : ${tags}"
                             th:value="${tag}"
@@ -262,11 +274,11 @@
                 </select>
                 <button type="submit" class="filter-button">Apply Tag Filters</button>
             </form>
-            <form action="/posts/sort" method="get">
+            <form th:action="@{/posts/sort}" th:method="get">
                 <select name="order" class="sort-dropdown" onchange="this.form.submit()">
                     <option value="">Sort</option>
-                    <option value="decrease">Newer To Older</option>
-                    <option value="increase">Older To Newer</option>
+                    <option th:value="decrease">Newer To Older</option>
+                    <option th:value="increase">Older To Newer</option>
                 </select>
             </form>
         </div>

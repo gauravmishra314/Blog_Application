@@ -6,6 +6,7 @@ import com.BlogApplication.Blog.payloads.PostDto;
 import com.BlogApplication.Blog.repositories.PostRepo;
 import org.springframework.data.domain.Page;
 
+import java.security.Principal;
 import java.util.List;
 
 public interface PostService {
@@ -15,7 +16,7 @@ public interface PostService {
 
        List<Post> getAllPost();
 
-       void save(PostDto postDto);
+       void save(PostDto postDto, Principal principal);
 
        PostDto getPostById(int id);
 

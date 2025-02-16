@@ -3,9 +3,11 @@ package com.BlogApplication.Blog.services.impl;
 import com.BlogApplication.Blog.models.Comment;
 import com.BlogApplication.Blog.models.Post;
 import com.BlogApplication.Blog.models.Tags;
+import com.BlogApplication.Blog.models.User;
 import com.BlogApplication.Blog.payloads.PostDto;
 import com.BlogApplication.Blog.repositories.PostRepo;
 import com.BlogApplication.Blog.repositories.TagRepo;
+import com.BlogApplication.Blog.repositories.UserRepo;
 import com.BlogApplication.Blog.services.PostService;
 import com.BlogApplication.Blog.services.TagService;
 import org.modelmapper.ModelMapper;
@@ -14,9 +16,11 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import javax.swing.text.html.HTML;
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -25,6 +29,9 @@ import java.util.stream.Collectors;
 public class PostServiceImpl implements PostService {
     @Autowired
     private PostRepo postRepo;
+
+    @Autowired
+    private UserRepo userRepo;
 
     @Autowired
     private TagRepo tagRepo;
@@ -80,12 +87,19 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void save(PostDto postDto) {
+    public void save(PostDto postDto, Principal principal) {
         Post post = this.dtoToPost(postDto);
         post.setTitle(post.getTitle());
         post.setAuthor(post.getAuthor());
         post.setUpdatedAt(LocalDateTime.now());
         post.setPublishedAt(LocalDateTime.now());
+        Optional<User> userOptional = userRepo.findByEmail(principal.getName());
+
+        if (userOptional.isEmpty()) {
+            throw new UsernameNotFoundException("Could not found user !!");
+        }
+        User currentUser = userOptional.get();
+        post.setUser(currentUser);
 
         // Excerpt Generation
         StringBuffer excerptString = new StringBuffer();
@@ -127,7 +141,7 @@ public class PostServiceImpl implements PostService {
 
             post.setTagList(tagList);
         }
-
+        currentUser.getPosts().add(post);
         postRepo.save(post);
     }
 

@@ -73,7 +73,7 @@
 <body>
 <div class="register-container">
     <h2>Create account</h2>
-    <form th:action="@{/registerUser}" method="post" th:object="${userDto}">
+    <form th:action="@{/registerUser}" th:method="post" th:object="${userDto}">
         <div class="input-group">
             <label for="name">Name:</label>
             <input type="text" id="name" th:field="*{name}" required>

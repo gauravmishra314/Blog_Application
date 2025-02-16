@@ -7,6 +7,7 @@ import com.BlogApplication.Blog.repositories.UserRepo;
 import com.BlogApplication.Blog.services.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -42,12 +43,6 @@ public class UserServiceImpl implements UserService {
         return userDto;
     }
 
-    @Override
-    public UserDto createUser(UserDto userDto){
-        User user = this.dtoToUser((userDto));
-        User savedUser = this.userRepo.save(user);
-        return this.userToDto(savedUser);
-    }
 
     @Override
     public UserDto updateUser(UserDto userDto, Integer userId){
@@ -72,7 +67,26 @@ public class UserServiceImpl implements UserService {
         return userDtos;
     }
 
-//    public void deleteUser(Integer userId){
+    @Override
+    public void createUser(UserDto userDto) {
+//            UserDto userDto = new UserDto();
+//            userDto.setRole("author");
 //
-//    }
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        String encryptedPassword = encoder.encode(userDto.getPassword());
+//            userDto.setPassword(encryptedPassword);
+//
+//            userDto.setEmail(email);
+//            userDto.setName(name);
+//           User user = this.modelMapper.map(userDto, User.class);
+        User user = new User();
+        user.setName(userDto.getName());
+        user.setEmail(userDto.getEmail());
+        user.setPassword(encryptedPassword);
+        user.setRole("ROLE_AUTHOR");
+
+        userRepo.save(user);
+
+    }
+
 }

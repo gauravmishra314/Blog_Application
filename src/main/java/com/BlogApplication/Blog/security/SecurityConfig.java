@@ -1,9 +1,9 @@
 package com.BlogApplication.Blog.security;
 
+import com.BlogApplication.Blog.security.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
@@ -13,7 +13,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
-@EnableWebSecurity
 @Configuration
 public class SecurityConfig {
     @Bean
@@ -35,32 +34,53 @@ public class SecurityConfig {
 
     }
 
-
-
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.authorizeHttpRequests(configurer ->
-                configurer
-                        .requestMatchers("/css/**").permitAll()
-                        .requestMatchers("/posts/edit/**").hasAnyRole("ADMIN","AUTHOR")
-                        .requestMatchers("/posts/delete/**").hasAnyRole("ADMIN","AUTHOR")
-                        .requestMatchers("/post/**","/logout/**","/post/publish/**","/post/viewPost").hasAnyRole("ADMIN", "AUTHOR")
-                        .requestMatchers("/posts/**","/registerUser/**","/login/**").permitAll()
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/login").anonymous()
+                        .requestMatchers(
+                                "/CSS/**",
+                                "/post/viewPost/**",
+                                "/posts/**",
+                                "/posts/filter-author/**",
+                                "/posts/filter-tag/**",
+                                "/posts/search/**",
+                                "/posts/sort/**",
+                                "/posts/{id}/comments/add/**",
+                                "/posts/comments/{commentId}/reply/**",
+                                "/registerUser",
+                                "/comment/reply/**"
+                        ).permitAll()
+                        .requestMatchers(
+                                "/posts/edit/**",
+                                "/post/publish/**",
+                                "/posts/createForm/**",
+                                "/post/republish/**",
+                                "/posts/delete/**",
+                                "/posts/comments/delete/{id}/**",
+                                "/logout/"
+                        ).hasAnyRole("ADMIN","AUTHOR")
                         .requestMatchers("/comment/reply/**").authenticated()
-        )
-                .formLogin(form ->
-                        form
-                                .loginPage("/login")
-                                .loginProcessingUrl("/authenticateTheUser")
-                                .permitAll()
-                ).logout(logout -> logout
+                )
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .loginProcessingUrl("/authenticateTheUser")
+                        .defaultSuccessUrl("/posts", true)
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
                         .logoutSuccessUrl("/posts")
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
+                        .deleteCookies("JSESSIONID")
                         .permitAll()
                 )
         ;
 
-        return httpSecurity.build();
+        return http.build();
     }
+
 
     @Bean
     public InMemoryUserDetailsManager userDetailsManager() {

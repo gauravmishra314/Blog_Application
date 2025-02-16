@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>View Post</title>
@@ -263,8 +263,14 @@
 </head>
 <body>
 <div class="nav-container">
-    <a th:href="@{/posts/edit(id=${post.id})}" class="edit-button">Edit</a>
-    <a th:href="@{/posts/delete(id=${post.id})}" class="delete-button">Delete Post</a>
+
+    <div sec:authorize="isAuthenticated()">
+        <a th:href="@{/posts/edit(id=${post.id})}" class="edit-button">Edit</a>
+    </div>
+
+    <div sec:authorize="isAuthenticated()">
+        <a th:href="@{/posts/delete(id=${post.id})}" class="delete-button">Delete Post</a>
+    </div>
 </div>
 
 <div class="container">
@@ -287,10 +293,10 @@
 <!-- Add Comment Section -->
 <div class="comment-section">
     <h3>Add a Comment</h3>
-    <form th:action="@{/posts/{id}/comments/add(id=${post.id})}" method="POST">
-        <input type="text" name="name" placeholder="Your Name" required>
-        <textarea name="content" placeholder="Write your comment here..." required></textarea>
-        <button type="submit">Add Comment</button>
+    <form th:action="@{/posts/{id}/comments/add(id=${post.id})}" th:method="POST">
+        <input type="text" th:name="name" placeholder="Your Name" required>
+        <textarea th:name="content" placeholder="Write your comment here..." required></textarea>
+        <button th:type="submit">Add Comment</button>
     </form>
 </div>
 
@@ -304,13 +310,17 @@ Display Existing Comments
                 <p th:text="${comment.content}">Comment Content</p>
 
                 <!-- Edit Comment Button -->
-                <a th:href="@{/posts/comments/edit(id=${comment.id})}" class="edit-comment-button">Edit</a>
+                <div sec:authorize="isAuthenticated()">
+                    <a th:href="@{/posts/comments/edit(id=${comment.id})}" class="edit-comment-button">Edit</a>
+                </div>
+
 
                 <!-- Delete Comment Button -->
-                <a th:href="@{/posts/comments/delete/{id}(id=${comment.id})}"
-                   onclick="return confirm('Are you sure you want to delete this comment?');"
-                   class="delete-comment-button">Delete Comment</a>
-
+                <div sec:authorize="isAuthenticated()">
+                    <a th:href="@{/posts/comments/delete/{id}(id=${comment.id})}"
+                       th:onclick="return confirm('Are you sure you want to delete this comment?');"
+                       class="delete-comment-button">Delete Comment</a>
+                </div>
 
                 <!-- Nested Comments (Replies) -->
                 <div class="nested-comments">
@@ -325,8 +335,8 @@ Display Existing Comments
 
                     <!-- Add Reply Form -->
                     <form th:if="${comment != null}" th:action="@{'/posts/comments/' + ${comment.id} + '/reply'}" method="POST">
-                        <textarea name="content" placeholder="Write your reply..." required></textarea>
-                        <button type="submit">Add Reply</button>
+                        <textarea th:name="content" placeholder="Write your reply..." required></textarea>
+                        <button th:type="submit">Add Reply</button>
                     </form>
                 </div>
             </div>

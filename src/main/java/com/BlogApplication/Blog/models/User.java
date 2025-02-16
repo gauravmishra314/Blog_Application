@@ -23,7 +23,7 @@ public class User {
     @Column(name="password")
     private String password;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST,CascadeType.MERGE}, fetch = FetchType.LAZY)
     private List<Post> posts;
 
     public List<Post> getPosts() {

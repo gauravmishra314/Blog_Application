@@ -3,10 +3,12 @@ package com.BlogApplication.Blog.controllers;
 import com.BlogApplication.Blog.models.Comment;
 import com.BlogApplication.Blog.models.Post;
 import com.BlogApplication.Blog.models.Tags;
+import com.BlogApplication.Blog.models.User;
 import com.BlogApplication.Blog.payloads.PostDto;
 import com.BlogApplication.Blog.payloads.UserDto;
 import com.BlogApplication.Blog.repositories.CommentRepo;
 import com.BlogApplication.Blog.repositories.PostRepo;
+import com.BlogApplication.Blog.repositories.UserRepo;
 import com.BlogApplication.Blog.services.CommentService;
 import com.BlogApplication.Blog.services.PostService;
 import com.BlogApplication.Blog.services.TagService;
@@ -17,11 +19,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,6 +49,9 @@ public class PostController {
 
     @Autowired
     private CommentService commentService;
+
+    @Autowired
+    private UserRepo userRepo;
 
     List<Post> filteredPostByAuthor = new ArrayList<>();
     List<Post> filteredPostByTag = new ArrayList<>();
@@ -90,16 +97,33 @@ public class PostController {
         return "postDashboard";
     }
 
+//    @GetMapping("/posts/createForm")
+//    public String showPostForm(Model model, Principal principal) {
+//        model.addAttribute("authorName", principal.getName());
+//        System.out.println("author name asdf : "+ principal.getName());
+//        model.addAttribute("postDto", new PostDto());
+//        return "newPost";
+//    }
+
     @GetMapping("/posts/createForm")
-    public String showPostForm(Model model) {
-        model.addAttribute("postDto", new PostDto());
+    public String showPostForm(Model model, Principal principal) {
+        PostDto postDto = new PostDto();
+        Optional<User> userOptional = userRepo.findByEmail(principal.getName());
+
+        if (userOptional.isEmpty()) {
+            throw new UsernameNotFoundException("Could not found user !!");
+        }
+        String authorName = userOptional.get().getName();
+        postDto.setAuthor(authorName);  // Set author as the logged-in username
+        model.addAttribute("postDto", postDto);
         return "newPost";
     }
 
+
     @PostMapping("/post/publish")
-    public String publishPost(@ModelAttribute("postDto") PostDto postDto) {
+    public String publishPost(@ModelAttribute("postDto") PostDto postDto, Principal principal) {
         postDto.setCreatedAt(LocalDateTime.now());
-        postService.save(postDto);
+        postService.save(postDto, principal);
 
         filteredPostByAuthor = new ArrayList<>();
         filteredPostByTag = new ArrayList<>();
