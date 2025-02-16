@@ -154,6 +154,7 @@ public class PostController {
     public String editPostByID(@RequestParam("id") int id, Model model){
         System.out.println("Ia ma getting ID   : "+id);
         PostDto postDto = postService.getPostById(id);
+        postDto.setId(id);
         System.out.println("this is the object sadkjfkjsdfhajkn: " + postDto);
         model.addAttribute("post", postDto);
         return  "editByPostID";
@@ -166,6 +167,7 @@ public class PostController {
         filteredPostByTag = new ArrayList<>();
 
         System.out.println("IIIIIIIIIIIIIIIII : "+postDto);
+
         System.out.println("postDto id     : "+postDto.getId());
         postService.updatePostByID(postDto, postDto.getId());
         return "redirect:/posts";
